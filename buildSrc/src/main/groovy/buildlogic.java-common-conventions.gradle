@@ -19,7 +19,8 @@ group = 'tech.kwik'
 // vanniktech plugin) consistently sees the same version. A clean tag like
 // 'v1.0.19' becomes '1.0.19'; any other 'git describe' output (development
 // builds) is used verbatim.
-version = {
+def configuredVersion = project.findProperty("publicationVersion")
+version = configuredVersion ?: {
     def proc = "git describe --always --dirty".execute()
     proc.waitFor()
     if (proc.exitValue() != 0) {
@@ -49,10 +50,11 @@ javadoc {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
-ext.agent15_version = '3.3'
+ext.agent15_version = project.findProperty("agent15Version") ?: '3.3'
 ext.mockito_version = '5.23.0'
 
 // Resolvable configuration holding just the mockito-core jar, so it can be passed to the test JVM as a Java agent

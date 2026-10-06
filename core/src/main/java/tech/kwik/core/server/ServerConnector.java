@@ -30,6 +30,8 @@ import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Set;
 
+import javax.net.ssl.X509TrustManager;
+
 /**
  * Listens for QUIC connections on a given port. Requires server certificate and corresponding private key.
  */
@@ -92,6 +94,9 @@ public interface ServerConnector extends AutoCloseable {
         Builder withConfiguration(ServerConnectionConfig configuration);
 
         Builder withLogger(Logger log);
+
+        /** Enables TLS client-certificate authentication for QUIC connections. */
+        Builder withClientAuth(X509TrustManager trustManager, boolean required);
 
         /**
          * Builds the server connector.

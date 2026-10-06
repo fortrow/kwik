@@ -64,6 +64,8 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import javax.net.ssl.X509TrustManager;
+
 import static tech.kwik.core.common.EncryptionLevel.Initial;
 
 /**
@@ -520,6 +522,8 @@ public class ServerConnectorImpl implements ServerConnector {
         private String certificateAlias;
         private char[] privateKeyPassword;
         private String ecCurve;
+        private X509TrustManager clientTrustManager;
+        private boolean clientAuthRequired;
 
         @Override
         public ServerConnector.Builder withPort(int port) {
@@ -592,6 +596,13 @@ public class ServerConnectorImpl implements ServerConnector {
         }
 
         @Override
+        public ServerConnector.Builder withClientAuth(X509TrustManager trustManager, boolean required) {
+            this.clientTrustManager = Objects.requireNonNull(trustManager);
+            this.clientAuthRequired = required;
+            return this;
+        }
+
+        @Override
         public ServerConnector build() throws SocketException, CertificateException {
             if (socket == null && port == 0) {
                 throw new IllegalStateException("port number not set");
@@ -611,6 +622,9 @@ public class ServerConnectorImpl implements ServerConnector {
                 }
                 else {
                     tlsEngineFactory = new TlsServerEngineFactory(certificateFile, certificateKeyFile);
+                }
+                if (clientTrustManager != null) {
+                    tlsEngineFactory.setClientAuth(clientTrustManager, clientAuthRequired);
                 }
                 return new ServerConnectorImpl(socket, tlsEngineFactory, supportedVersions, configuration, log);
             }

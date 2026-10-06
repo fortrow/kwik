@@ -726,6 +726,11 @@ public class ServerConnectionImpl extends QuicConnectionImpl implements ServerCo
         }
 
         @Override
+        public void send(CertificateRequestMessage cr) throws IOException {
+            getCryptoStream(EncryptionLevel.Handshake).write(cr, false);
+        }
+
+        @Override
         public void send(CertificateMessage cm) throws IOException {
             getCryptoStream(EncryptionLevel.Handshake).write(cm, false);
         }
